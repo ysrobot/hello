@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block page_content %}
+<div class="col-md-4 column">
+    <ul class="list-group"> 
+        <li class="list-group-item"><a href="#" data-toggle="tooltip" data-placement="top" title="顶部的 Tooltip">Python</a></li> 
+        <li class="list-group-item"></li> 
+        <li class="list-group-item">机器学习</li> 
+        <li class="list-group-item">webserver</li> 
+        <li class="list-group-item">网络爬虫</li> 
+    </ul>
+	<a id = "a" href="#" data-toggle="tooltip" data-placement="top" title="顶部的 Tooltip">顶部的 Tooltip</a>
+	<br/>
+	<a href="#" class="tooltip-test" data-toggle="tooltip" title="默认的 Tooltip">默认的 Tooltip</a>
+	<br/>
+	<button type="button" class="btn btn-success" title="Popover title"  
+	data-container="body" data-toggle="popover" data-placement="bottom" 
+	data-content="底部的 Popover 中的一些内容">底部的 Popover</button>
+				
+				
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script>
+	$(function () { 
+		$("[data-toggle='popover']").popover();
+		
+	});
+	$("button").click(function(){
+        $("#a").fadeOut("slow");
+    });
+</script>
+
+{% endblock %}
