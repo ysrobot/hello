@@ -5,36 +5,46 @@ from flask_login import login_required, current_user
 from flask_sqlalchemy import get_debug_queries
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm,\
-    CommentForm
+    CommentForm,SearchForm
 from .. import db
 from ..models import Permission, Role, User, Post, Comment
 from ..decorators import admin_required, permission_required
 
-@main.route('/', methods=['GET', 'POST'])
+
+@main.route('/')
 def index():
-    form = PostForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and \
-            form.validate_on_submit():
-        post = Post(body=form.body.data,
-                    author=current_user._get_current_object())
-        db.session.add(post)
-        return redirect(url_for('.index'))
+    
+    return render_template('index.html')
+
+
+@main.route('/read',methods=['GET', 'POST'])
+def read():
+    form = SearchForm()
+    query = Post.query
     page = request.args.get('page', 1, type=int)
-    show_followed = False
-    if current_user.is_authenticated:
-        show_followed = bool(request.cookies.get('show_followed', ''))
-    if show_followed:
-        query = current_user.followed_posts
+    if form.validate_on_submit():
+        print(form.body.data)
+        pagination = query.filter(Post.key_word.like('%'+form.body.data+'%')).order_by(Post.timestamp.desc()).paginate(page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],error_out=False)
+        print('%'+form.body.data+'%')
     else:
-        query = Post.query
-    pagination = query.order_by(Post.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
-        error_out=False)
+        pagination = query.order_by(Post.timestamp.desc()).paginate(page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],error_out=False)
     posts = pagination.items
-    return render_template('index.html', form=form, posts=posts,
+    return render_template('readblog.html', posts=posts, form=form,
                            show_followed=show_followed, pagination=pagination)
     #user_agent = request.headers.get('User-Agent')
     #return '<p>Your browser is %s</p>' % user_agent
+    
+@main.route('/write', methods=['GET', 'POST'])
+def write():
+    form = PostForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+            form.validate_on_submit():
+        post = Post(body=form.body.data,key_word=form.key_word.data,
+                    author=current_user._get_current_object())
+        db.session.add(post)
+        return redirect(url_for('.readblog'))
+    
+    return render_template('writeblog.html', form=form)
 
 @main.route('/exp')
 def exp():    

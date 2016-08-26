@@ -15,6 +15,7 @@
                 {% endif %}
             </div>
             <div class="post-footer">
+                <p>Tag: {{post.key_word}}</p>
                 {% if current_user == post.author %}
                 <a href="{{ url_for('.edit', id=post.id) }}">
                     <span class="label label-primary">Edit</span>

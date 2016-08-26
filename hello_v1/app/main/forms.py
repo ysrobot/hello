@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField,SubmitField
 from wtforms.validators import Required, Length, Email, Regexp
@@ -50,8 +51,15 @@ class EditProfileAdminForm(Form):
             raise ValidationError('Username already in use.')
 
 
+def key_check(form, field):
+    kl = field.data.split(',')
+    if len(kl)>3 or len(field.data)>30:
+        raise ValidationError('keywords are must less then 3')
+
+
 class PostForm(Form):
     body = PageDownField("What's on your mind?", validators=[Required()])
+    key_word = StringField('what is this about?(please not more than 5 words)',validators=[key_check])
     submit = SubmitField('Submit')
 
 
@@ -59,3 +67,6 @@ class CommentForm(Form):
     body = StringField('Enter your comment', validators=[Required()])
     submit = SubmitField('Submit')
 
+class SearchForm(Form):
+    body = StringField('',validators=[Required()])
+    submit = SubmitField('Submit')
